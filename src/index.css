@@ -1,10 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
     margin: auto;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: "Quicksand", system-ui;
     overflow: auto;
     background: linear-gradient(315deg, #DCBFFF 3%, #CAF4FF 38%, #F0A8D0 68%, #A5DD9B 98%);
     animation: gradient 15s ease infinite;

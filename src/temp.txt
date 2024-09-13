@@ -1,0 +1,87 @@
+import React, { useState } from 'react';
+
+const SahilBot: React.FC = () => {
+  // State to manage messages
+  const [messages, setMessages] = useState<{ text: string, sender: 'user' | 'bot' }[]>([]);
+
+  // Questions and corresponding answers
+  const questions = [
+    "Just saying Hello!",
+    "How can I reach out to you?",
+    "Daily reminder",
+    "What tech stack do you use?",
+  ];
+
+  const answers: Record<string, string[]> = {
+    "Just saying Hello!": [
+      "Hello!",
+      "Thanks for saying hi!",
+      "I hope you enjoyed looking at my work. Can I help you with anything else?",
+    ],
+    "How can I reach out to you?": [
+      "For reaching out, please send me an email to abc@example.com.",
+      "I'll try to get back to you as soon as possible.",
+      "Anything else?",
+    ],
+    "Daily reminder": [
+      "Gratitude changes everything.",
+      "I hope this daily reminder makes you feel happier and more positive.",
+      "Is there more on your mind?",
+    ],
+    "What tech stack do you use?": [
+      "I'm currently working with React, TypeScript, and Tailwind.",
+      "I love working with these technologies.",
+      "Anything else?",
+    ],
+  };
+
+  // Handle user selecting a question
+  const handleSelectQuestion = (question: string) => {
+    // Add user question to messages
+    const userMessage = { text: question, sender: 'user' };
+    setMessages([...messages, userMessage]);
+
+    // Display answers one by one with a delay
+    const botResponses = answers[question];
+    botResponses.forEach((response, index) => {
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { text: response, sender: 'bot' }]);
+      }, (index + 1) * 800); // delay each answer by 800ms
+    });
+  };
+
+  return (
+    <div className="max-w-md mx-auto mt-10 p-4 border border-gray-300 rounded-lg shadow-lg">
+      {/* Greeting */}
+      <div className="mb-4">
+        <p>Hi! I'm Sahil bot, here to assist with any questions about Sahil's work. How can I help you today?</p>
+      </div>
+
+      {/* Chat Window */}
+      <div className="h-80 overflow-y-scroll bg-white p-4 border border-gray-300 rounded mb-4">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`my-2 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
+            <span className={`inline-block px-4 py-2 rounded-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}>
+              {msg.text}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Question Suggestions */}
+      <div className="flex flex-col gap-2">
+        {questions.map((question, idx) => (
+          <button
+            key={idx}
+            className="bg-gray-200 hover:bg-gray-300 text-black py-2 px-3 rounded-lg"
+            onClick={() => handleSelectQuestion(question)}
+          >
+            {question}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default SahilBot;

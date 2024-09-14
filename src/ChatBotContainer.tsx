@@ -82,28 +82,29 @@ export function ChatBotContainer({onClose}: ChatBotProps) {
 
   // Handle the user's question selection
   const handleQuestionSelection = (question: string) => {
-    const userMessage = { text: question, sender: "user" };
-    setMessages([...messages, userMessage]);
+  const userMessage: { text: string; sender: "user" } = { text: question, sender: "user" };
+  setMessages([...messages, userMessage]);
 
-    setTimeout(() => {
-      const botResponse = Answers[question];
-      botResponse.forEach((res, idx) => {
-        setTimeout(() => {
-          setMessages((prev) => [...prev, { text: res, sender: "bot" }]);
+  setTimeout(() => {
+    const botResponse = Answers[question];
+    botResponse.forEach((res, idx) => {
+      setTimeout(() => {
+        const botMessage: { text: string; sender: "bot" } = { text: res, sender: "bot" };
+        setMessages((prev) => [...prev, botMessage]);
 
-          // After last response show the questions again
-          if (idx === botResponse.length - 1) {
-            setTimeout(() => {
-              setShowQuestions(true);
-            }, 1000);
-          }
-        }, (idx + 1) * 1000);
-      });
-    }, 500);
+        // After last response show the questions again
+        if (idx === botResponse.length - 1) {
+          setTimeout(() => {
+            setShowQuestions(true);
+          }, 1000);
+        }
+      }, (idx + 1) * 1000);
+    });
+  }, 500);
 
-    // Hide question while answering
-    setShowQuestions(false);
-  };
+  // Hide questions while answering
+  setShowQuestions(false);
+};
 
   return (
     <div className="max-w-sm mx-auto mt-24 shadow-xl">

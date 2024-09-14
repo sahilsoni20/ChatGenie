@@ -64,8 +64,9 @@ export function ChatBotContainer({onClose}: ChatBotProps) {
     Introduce.forEach((intro, index) => {
       setTimeout(() => {
         setShowQuestions(false);
-        setMessages((prev) => [...prev, { text: intro, sender: "bot" }]);
-
+        const introMessage: { text: string; sender: "bot" } = { text: intro, sender: "bot" };
+        setMessages((prev) => [...prev, introMessage]);
+  
         if (index === Introduce.length - 1) {
           setTimeout(() => {
             setShowQuestions(true);
@@ -73,7 +74,7 @@ export function ChatBotContainer({onClose}: ChatBotProps) {
         }
       }, (index + 1) * 800); // Delay for each intro message
     });
-  };
+  };  
 
   // Initialize the introduction when the component mounts
   useState(() => {

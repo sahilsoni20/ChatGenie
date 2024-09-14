@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { VscChromeClose } from "react-icons/vsc";
 
-export function ChatBotContainer() {
+type ChatBotProps = {
+  onClose: () => void
+}
+export function ChatBotContainer({onClose}: ChatBotProps) {
   // State for storing messages (text and sender)
   const [messages, setMessages] = useState<
     { text: string; sender: "user" | "bot" }[]
   >([]);
-  const [showQuestions, setShowQuestions] = useState(true)
+  const [showQuestions, setShowQuestions] = useState(true);
+  const lastMessageRef = useRef<HTMLDivElement | null>(null); 
+
+  // Scroll to the last message smoothly when a new message is added
+  useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, showQuestions]); // Trigger this whenever the messages array is updated
 
   // Introduction messages shown at the beginning
   const Introduce: string[] = [
@@ -50,27 +61,17 @@ export function ChatBotContainer() {
 
   // Introduce the initial messages (introduction)
   const initializeChat = () => {
-    setShowQuestions(false)
     Introduce.forEach((intro, index) => {
       setTimeout(() => {
+        setShowQuestions(false);
         setMessages((prev) => [...prev, { text: intro, sender: "bot" }]);
+
+        if (index === Introduce.length - 1) {
+          setTimeout(() => {
+            setShowQuestions(true);
+          }, 1000);
+        }
       }, (index + 1) * 800); // Delay for each intro message
-    });
-  };
-
-  // Handle the user's question selection
-  const handleQuestionSelection = (question: string) => {
-    // Add user message to the chat
-    setShowQuestions(false)
-    const userMessage = { text: question, sender: "user" };
-    setMessages((prev) => [...prev, userMessage]);
-
-    // Add bot response (answers) to the chat
-    const botResponses = Answers[question];
-    botResponses.forEach((res, index) => {
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { text: res, sender: "bot" }]);
-      }, (index + 1) * 800); // Delay bot responses too
     });
   };
 
@@ -78,6 +79,31 @@ export function ChatBotContainer() {
   useState(() => {
     initializeChat();
   });
+
+  // Handle the user's question selection
+  const handleQuestionSelection = (question: string) => {
+    const userMessage = { text: question, sender: "user" };
+    setMessages([...messages, userMessage]);
+
+    setTimeout(() => {
+      const botResponse = Answers[question];
+      botResponse.forEach((res, idx) => {
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { text: res, sender: "bot" }]);
+
+          // After last response show the questions again
+          if (idx === botResponse.length - 1) {
+            setTimeout(() => {
+              setShowQuestions(true);
+            }, 1000);
+          }
+        }, (idx + 1) * 1000);
+      });
+    }, 500);
+
+    // Hide question while answering
+    setShowQuestions(false);
+  };
 
   return (
     <div className="max-w-sm mx-auto mt-24 shadow-xl">
@@ -87,12 +113,12 @@ export function ChatBotContainer() {
           Sahil Bot
           <p className="text-sm">Ask me a question</p>
         </div>
-        <div>
-          <VscChromeClose size={22} style={{ marginTop: "12px" }} />
+        <div onClick={onClose}>
+          <VscChromeClose size={22} style={{marginTop: "12px" }} />
         </div>
       </div>
 
-      <div className="h-96 rounded-b-2xl bg-white p-4 mb-4">
+      <div className="h-96 rounded-b-2xl overflow-y-auto scrollbar-hide font-medium bg-white p-4 mb-4">
         {messages.map((msg, idx) => (
           <div
             key={idx}
@@ -103,7 +129,7 @@ export function ChatBotContainer() {
             <span
               className={`inline-block px-4 py-2 rounded-lg ${
                 msg.sender === "user"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-gradient-to-r from-indigo-400 to-cyan-400 text-white"
                   : "bg-gray-100 text-black"
               }`}
             >
@@ -112,22 +138,27 @@ export function ChatBotContainer() {
           </div>
         ))}
 
-        {showQuestions && (
-        <div className="flex flex-col gap-2">
-          {Questions.map((question, idx) => (
-            <button
-              key={idx}
-              className="bg-gray-200 hover:bg-gray-300 text-black py-2 px-3 rounded-lg"
-              onClick={() => handleQuestionSelection(question)}
-            >
-              {question}
-            </button>
-          ))}
-        </div>
-      )}
-    
-      </div>
+        {/* Last message reference for smooth scrolling */}
+        <div ref={lastMessageRef} />
 
+        {showQuestions && (
+          <div className="flex flex-col gap-2">
+            {Questions.map((question, idx) => (
+              <button
+                key={idx}
+                className="inline-block w-fit rounded-lg bg-gradient-to-r from-violet-500 via-pink-200 to-cyan-500 p-[0.8px]"
+                onClick={() => handleQuestionSelection(question)}
+              >
+                <div className="bg-white px-4 py-2 rounded-lg">
+                  <p className="bg-gradient-to-r from-violet-500 to-cyan-500 inline-block text-transparent bg-clip-text">
+                    {question}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
